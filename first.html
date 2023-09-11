@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+   <style>
+
+/* CSS */
+.products {
+    float: left;
+    width: 30%;
+    }
+    
+    .product-details {
+    float: left;
+    width: 70%;
+    }
+    
+    .products ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    }
+    
+    .products li {
+    cursor: pointer;
+    }
+    
+    .products li:hover {
+    background-color: #eee;
+    }
+    
+    .product-details p {
+    font-weight: bold;
+    }
+   </style>
+
+</head>
+<body>
+    <div class="products">
+        <ul>
+    <li data-product-id="1">Product 1</li>
+    <li data-product-id="2">Product 2</li>
+    <li data-product-id="3">Product 3</li>
+    </ul>
+    </div>
+    
+    <div class="product-details">
+    <!-- product details will be displayed here -->
+        <h1>change product</h1>
+    </div>
+
+<script>
+// JavaScript
+const productList = document.querySelector('.products ul');
+const productDetails = document.querySelector('.product-details');
+
+const products = [
+{id: 1, name: 'Product 1', description: 'This is the description of product 1.'},
+{id: 2, name: 'Product 2', description: 'This is the description of product 2.'},
+{id: 3, name: 'Product 3', description: 'This is the description of product 3.'}
+];
+
+function displayProductDetails(id) {
+const product = products.find(p => p.id === id);
+productDetails.innerHTML = `<p>${product.name}</p><p>${product.description}</p>`;
+}
+productList.addEventListener('click', e => {
+    if (e.target.tagName === 'LI') {
+    const id = parseInt(e.target.getAttribute('data-product-id'));
+    displayProductDetails(id);
+    }});
+</script>
+</body>
+</html>

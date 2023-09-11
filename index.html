@@ -2,74 +2,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-   <style>
-/* CSS */
-.products {
-    float: left;
-    width: 30%;
-    }
-    
-    .product-details {
-    float: left;
-    width: 70%;
-    }
-    
-    .products ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    }
-    
-    .products li {
-    cursor: pointer;
-    }
-    
-    .products li:hover {
-    background-color: #eee;
-    }
-    
-    .product-details p {
-    font-weight: bold;
-    }
-   </style>
+    <title>Simple SPA with Vanilla JS</title>
+    <style>
 
+        /* CSS */
+        .products {
+            float: left;
+            width: 30%;
+            }
+            
+            .product-details {
+            float: left;
+            width: 70%;
+            }
+            
+            .products ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            }
+            
+            .products li {
+            cursor: pointer;
+            }
+            
+            .products li:hover {
+            background-color: #eee;
+            }
+            
+            .product-details p {
+            font-weight: bold;
+            }
+           </style>
+        
 </head>
 <body>
-    <div class="products">
-        <ul>
-    <li data-product-id="1">Product 1</li>
-    <li data-product-id="2">Product 2</li>
-    <li data-product-id="3">Product 3</li>
-    </ul>
-    </div>
-    
-    <div class="product-details">
-    <!-- product details will be displayed here -->
-        <h1>change product</h1>
-    </div>
+    <div id="app"></div>
 
-<script>
-// JavaScript
-const productList = document.querySelector('.products ul');
-const productDetails = document.querySelector('.product-details');
+    <script>
+        const app = document.getElementById('app');
 
-const products = [
-{id: 1, name: 'Product 1', description: 'This is the description of product 1.'},
-{id: 2, name: 'Product 2', description: 'This is the description of product 2.'},
-{id: 3, name: 'Product 3', description: 'This is the description of product 3.'}
-];
+        const products = [
+            { id: 1, name: 'Product 1', description: 'Description for Product 1.' },
+            { id: 2, name: 'Product 2', description: 'Description for Product 2.' },
+            { id: 3, name: 'Product 3', description: 'Description for Product 3.' }
+        ];
 
-function displayProductDetails(id) {
-const product = products.find(p => p.id === id);
-productDetails.innerHTML = `<p>${product.name}</p><p>${product.description}</p>`;
-}
-productList.addEventListener('click', e => {
-    if (e.target.tagName === 'LI') {
-    const id = parseInt(e.target.getAttribute('data-product-id'));
-    displayProductDetails(id);
-    }});
-</script>
+        // 공통 네비게이션 생성 함수
+        function generateNav() {
+            return `
+                <nav>
+                    <button onclick="navigateTo('/')">Home</button>
+                    <button onclick="navigateTo('/products')">Products</button>
+                </nav>
+            `;
+        }
+
+        // 제품 상세 페이지 생성 함수
+        function displayProductDetails(id) {
+            const product = products.find(p => p.id === id);
+            app.innerHTML = generateNav() + `
+                <h1>${product.name}</h1>
+                <p>${product.description}</p>
+            `;
+        }
+
+        // 제품 목록 페이지 이벤트 리스너 추가
+        function attachProductListEvents() {
+            const productList = app.querySelector('.products ul');
+            productList.addEventListener('click', e => {
+                if (e.target.tagName === 'LI') {
+                    const id = parseInt(e.target.getAttribute('data-product-id'), 10);
+                    displayProductDetails(id);
+                    window.history.pushState({}, `/products/${id}`, window.location.origin + `/products/${id}`);
+                }
+            });
+        }
+
+        // 페이지 이동 함수
+        function navigateTo(path) {
+            const routes = {
+                '/': `<h1>Home</h1><p>Welcome to the home page.</p>`,
+                '/products': `
+                    <h1>Products</h1>
+                    <div class="products">
+                        <ul>
+                            <li data-product-id="1">Product 1</li>
+                            <li data-product-id="2">Product 2</li>
+                            <li data-product-id="3">Product 3</li>
+                        </ul>
+                    </div>
+                `
+            };
+
+            let content = routes[path] || '';
+
+            // 제품 ID가 URL에 있는 경우
+            const productIdMatch = path.match(/\/products\/(\d+)/);
+            if (productIdMatch) {
+                const id = parseInt(productIdMatch[1], 10);
+                displayProductDetails(id);
+                return;
+            }
+
+            app.innerHTML = generateNav() + content;
+            window.history.pushState({}, path, window.location.origin + path);
+
+            if (path === '/products') {
+                attachProductListEvents();
+            }
+        }
+
+        window.addEventListener('popstate', () => {
+            navigateTo(window.location.pathname);
+        });
+
+        navigateTo(window.location.pathname);
+    </script>
 </body>
 </html>
